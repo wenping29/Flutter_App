@@ -21,13 +21,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// 配置MySQL数据库
+// 配置SQLite数据库
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseMySql(
-        builder.Configuration.GetConnectionString("MySqlConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MySqlConnection"))
-    );
+    options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection"));
 });
 // 读取appsettings.json中的JwtSettings配置
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -104,6 +101,12 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.EnsureCreated();
+}
 
 // 开发环境启用Swagger
 // if (app.Environment.IsDevelopment())
