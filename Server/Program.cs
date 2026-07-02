@@ -7,15 +7,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
+
 var builder = WebApplication.CreateBuilder(args);
+
 
 builder.WebHost.ConfigureKestrel(options =>
 {
    //options.ListenAnyIP(5002); // 端口
    //options.ListenAnyIP(7001, configure => configure.UseHttps()); // https 端口
 });
-// 添加控制器
-builder.Services.AddControllers();
+// 添加控制器并配置JSON序列化（camelCase）
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 
 // 添加Swagger（接口文档）
 builder.Services.AddEndpointsApiExplorer();

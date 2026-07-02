@@ -209,6 +209,13 @@ class _MessagePageState extends State<MessagePage> {
           final String lastMessageTime = session['lastMessageTime'] ?? '';
           final int unreadCount = session['unreadCount'] ?? 0;
           final bool isGroup = session['isGroup'] ?? false;
+          final int userId1 = session['userId1'] ?? 0;
+          final int userId2 = session['userId2'] ?? 0;
+
+          // 获取好友ID（不是当前用户的那个ID）
+          // 临时假设当前用户ID为1
+          final int currentUserId = 1;
+          final int friendId = userId1 == currentUserId ? userId2 : userId1;
 
           return InkWell(
             onTap: () {
@@ -218,7 +225,8 @@ class _MessagePageState extends State<MessagePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ChatWindowPage(
-                    friendId: 1,
+                    sessionId: sessionId,
+                    friendId: friendId,
                     friendName: sessionName,
                     friendAvatar: isGroup
                         ? "assets/images/avatar.png"

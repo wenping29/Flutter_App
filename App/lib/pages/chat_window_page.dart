@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import '../utils/network_utils.dart';
 
 class ChatWindowPage extends StatefulWidget {
+  final String? sessionId;
   final int friendId;
   final String friendName;
   final String friendAvatar;
 
   const ChatWindowPage({
     super.key,
+    this.sessionId,
     required this.friendId,
     required this.friendName,
     required this.friendAvatar,
@@ -28,7 +30,12 @@ class _ChatWindowPageState extends State<ChatWindowPage> {
   Future<void> _loadMessages() async {
     setState(() => _isLoading = true);
 
-    final response = await NetworkUtils.get('Chat/Messages/${widget.friendId}');
+    // 生成sessionId（如果没有提供的话）
+    // 临时假设当前用户ID为1
+    final int currentUserId = 1;
+    final String sessionId = widget.sessionId ?? _generateSessionId(currentUserId, widget.friendId);
+
+    final response = await NetworkUtils.get('Chat/Messages/$sessionId');
     setState(() => _isLoading = false);
 
     if (mounted) {
@@ -48,6 +55,12 @@ class _ChatWindowPageState extends State<ChatWindowPage> {
     }
   }
 
+  // 生成sessionId
+  String _generateSessionId(int userId1, int userId2) {
+    final List<int> ids = [userId1, userId2]..sort();
+    return 'user_${ids[0]}_user_${ids[1]}';
+  }
+
   // 发送消息到服务端
   Future<void> _sendMessage() async {
     final content = _messageController.text.trim();
@@ -55,8 +68,13 @@ class _ChatWindowPageState extends State<ChatWindowPage> {
 
     setState(() => _isSending = true);
 
+    // 生成sessionId（如果没有提供的话）
+    // 临时假设当前用户ID为1
+    final int currentUserId = 1;
+    final String sessionId = widget.sessionId ?? _generateSessionId(currentUserId, widget.friendId);
+
     // 构建请求参数
-    final requestData = {'SessionId': widget.friendId, 'Content': content};
+    final requestData = {'SessionId': sessionId, 'Content': content};
 
     // 调用发送消息API
     final response = await NetworkUtils.post(
