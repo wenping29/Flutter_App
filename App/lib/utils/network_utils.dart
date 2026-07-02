@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 // 服务端基础地址（替换为你的后端IP/域名）
-const String baseUrl = 'http://8.136.202.27:80/test/api';
-//const String baseUrl = 'http://localhost:5003/api';
+// const String baseUrl = 'http://8.136.202.27:80/test/api';
+const String baseUrl = 'http://localhost:5003/api';
 
 // 存储JWT令牌（模拟本地存储，生产可用SharedPreferences）
 String? _token;
@@ -40,7 +40,7 @@ String? getToken() {
 // 检查是否登录（公共方法）
 bool isLoggedIn() {
   //print(_token);
-  return _token != null && _token.isNotEmpty;
+  return _token != null && _token!.isNotEmpty;
 }
 
 // 通用网络请求方法
@@ -137,7 +137,7 @@ class NetworkServices {
       final Map<String, String> requestHeaders = {
         'Content-Type': 'application/json; charset=utf-8',
       };
-      if (_token != null && _token.isNotEmpty) {
+      if (_token != null && _token!.isNotEmpty) {
         requestHeaders['Authorization'] = 'Bearer $_token';
       }
       final res = await NetworkUtils.get(url, headers: requestHeaders);
@@ -155,7 +155,7 @@ class NetworkServices {
         'Content-Type': 'application/json; charset=utf-8',
       };
       // 携带JWT令牌
-      if (_token != null && _token.isNotEmpty) {
+      if (_token != null && _token!.isNotEmpty) {
         requestHeaders['Authorization'] = 'Bearer $_token';
       }
       final res = await NetworkUtils.get(url, headers: requestHeaders);
@@ -173,7 +173,7 @@ class NetworkServices {
         'Content-Type': 'application/json; charset=utf-8',
       };
       // 携带JWT令牌
-      if (_token != null && _token.isNotEmpty) {
+      if (_token != null && _token!.isNotEmpty) {
         requestHeaders['Authorization'] = 'Bearer $_token';
       }
       final res = await NetworkUtils.get(url, headers: requestHeaders);
@@ -195,7 +195,7 @@ class NetworkServices {
         'Content-Type': 'application/json; charset=utf-8',
       };
       // 携带JWT令牌
-      if (_token != null && _token.isNotEmpty) {
+      if (_token != null && _token!.isNotEmpty) {
         requestHeaders['Authorization'] = 'Bearer $_token';
       }
       final res = await NetworkUtils.get(url, headers: requestHeaders);
