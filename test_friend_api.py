@@ -16,8 +16,9 @@ try:
 
     if login_response.status_code == 200:
         result = login_response.json()
-        if result.get('code') == 200:
-            token = result['data']['token']
+        print(f"解析结果: {result}")
+        if isinstance(result, dict) and result.get('code') == 200:
+            token = result['data']
             print(f"获取到token: {token[:50]}...")
 
             # 使用token查询好友列表
@@ -37,3 +38,5 @@ try:
 
 except Exception as e:
     print(f"请求异常: {e}")
+    import traceback
+    traceback.print_exc()

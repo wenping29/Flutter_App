@@ -133,7 +133,7 @@ class NetworkServices {
   }) async {
     try {
       final url =
-          '/Collection/MyCollections?pageIndex=$pageIndex&pageSize=$pageSize';
+          'Collection/MyCollections?pageIndex=$pageIndex&pageSize=$pageSize';
       final Map<String, String> requestHeaders = {
         'Content-Type': 'application/json; charset=utf-8',
       };
@@ -150,7 +150,7 @@ class NetworkServices {
   /// 查询我的好友列表
   static Future<Map<String, dynamic>> getMyFriends() async {
     try {
-      final url = '/Friend/MyFriends';
+      final url = 'Friend/MyFriends';
       final Map<String, String> requestHeaders = {
         'Content-Type': 'application/json; charset=utf-8',
       };
@@ -168,7 +168,7 @@ class NetworkServices {
   /// 获取当前用户信息
   static Future<Map<String, dynamic>> getMyUserInfo() async {
     try {
-      final url = '/User/MyInfo';
+      final url = 'User/MyInfo';
       final Map<String, String> requestHeaders = {
         'Content-Type': 'application/json; charset=utf-8',
       };
@@ -189,8 +189,7 @@ class NetworkServices {
     int pageSize = 10,
   }) async {
     try {
-      final url =
-          '/Moment/MyMomentList?pageIndex=$pageIndex&pageSize=$pageSize';
+      final url = 'Moment/MyMomentList?pageIndex=$pageIndex&pageSize=$pageSize';
       final Map<String, String> requestHeaders = {
         'Content-Type': 'application/json; charset=utf-8',
       };
