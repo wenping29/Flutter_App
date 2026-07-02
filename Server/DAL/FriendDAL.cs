@@ -22,42 +22,35 @@ namespace ChatServer.DAL
         /// <returns>好友列表（包含用户基础信息）</returns>
         public async Task<List<dynamic>> GetFriendListAsync(int userId)
         {
-            // 联表查询：好友关系表 + 用户表
-            var friendList = await _dbContext.Friends
-                .Where(f => f.FriendUserId == userId && f.Status == 1)
-                // .Join(
-                //     _dbContext.Users, // 关联用户表
-                //     f => f.UserId, // 好友关系表的好友ID
-                //     u => u.Id, // 用户表的用户ID
-                //     (f, u) => new // 拼接返回结果
-                //     {
-                //         FriendId = f.UserId,
-                //         Username = u.Username,
-                //         Avatar = u.Avatar ?? "/assets/avatar_default.png",
-                //         RemarkName = f.RemarkName,
-                //         AddTime = f.CreateTime.ToString("yyyy-MM-dd"),
-                //         Phone = u.Phone
-                //     }
-                // ).OrderByDescending(f => f.AddTime)
+            // 查询当前用户的好友关系
+            var friendRelations = await _dbContext.Friends
+                .Where(f => f.UserId == userId && f.Status == 1)
                 .ToListAsync();
-            
 
-            // 转换为dynamic便于JSON序列化
-            return friendList.Select(f => new
+            // 获取所有好友的用户ID
+            var friendUserIds = friendRelations.Select(f => f.FriendUserId).ToList();
+
+            // 查询这些用户的详细信息
+            var users = await _dbContext.Users
+                .Where(u => friendUserIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id);
+
+            // 组装结果
+            var result = friendRelations.Select(f =>
             {
-                // f.FriendId,
-                // f.Username,
-                // f.Avatar,
-                // f.RemarkName,
-                // f.AddTime,
-                // f.Phone
-                    FriendId = f.UserId,
-                    Username = f.UserId,
-                    Avatar =   "/avatar_default.png",
+                var friendUser = users.TryGetValue(f.FriendUserId, out var user) ? user : null;
+                return new
+                {
+                    FriendId = f.FriendUserId,
+                    Username = friendUser?.Username ?? "未知用户",
+                    Avatar = friendUser?.Avatar ?? "/assets/avatar_default.png",
                     RemarkName = f.RemarkName,
                     AddTime = f.CreateTime.ToString("yyyy-MM-dd"),
-                    Phone = "12345678900",
-            }).Cast<dynamic>().ToList();
+                    Phone = friendUser?.Phone ?? "未知",
+                };
+            }).OrderByDescending(x => x.AddTime).Cast<dynamic>().ToList();
+
+            return result;
         }
     }
 }
