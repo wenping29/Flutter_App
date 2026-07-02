@@ -33,7 +33,8 @@ class _ChatWindowPageState extends State<ChatWindowPage> {
     // 生成sessionId（如果没有提供的话）
     // 临时假设当前用户ID为1
     final int currentUserId = 1;
-    final String sessionId = widget.sessionId ?? _generateSessionId(currentUserId, widget.friendId);
+    final String sessionId =
+        widget.sessionId ?? _generateSessionId(currentUserId, widget.friendId);
 
     final response = await NetworkUtils.get('Chat/Messages/$sessionId');
     setState(() => _isLoading = false);
@@ -43,7 +44,10 @@ class _ChatWindowPageState extends State<ChatWindowPage> {
         setState(() {
           _chatRecords = List<Map<String, dynamic>>.from(response['data']);
         });
-        _scrollToBottom();
+        // 在下一帧中滚动到底部，确保ListView已渲染完成
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToBottom();
+        });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -71,7 +75,8 @@ class _ChatWindowPageState extends State<ChatWindowPage> {
     // 生成sessionId（如果没有提供的话）
     // 临时假设当前用户ID为1
     final int currentUserId = 1;
-    final String sessionId = widget.sessionId ?? _generateSessionId(currentUserId, widget.friendId);
+    final String sessionId =
+        widget.sessionId ?? _generateSessionId(currentUserId, widget.friendId);
 
     // 构建请求参数
     final requestData = {'SessionId': sessionId, 'Content': content};
@@ -90,7 +95,10 @@ class _ChatWindowPageState extends State<ChatWindowPage> {
           _chatRecords.add(response['data']);
           _messageController.clear();
         });
-        _scrollToBottom();
+        // 在下一帧中滚动到底部，确保新消息已渲染
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToBottom();
+        });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -105,11 +113,16 @@ class _ChatWindowPageState extends State<ChatWindowPage> {
   // 滚动到底部
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+      // 添加一个短暂延迟，确保内容已经完全渲染
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted && _scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
     }
   }
 
@@ -251,6 +264,7 @@ class _ChatWindowPageState extends State<ChatWindowPage> {
 
     return ListView.builder(
       controller: _scrollController,
+      reverse: false,
       padding: const EdgeInsets.all(12),
       itemCount: _chatRecords.length,
       itemBuilder: (context, index) {
